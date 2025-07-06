@@ -1,0 +1,267 @@
+openapi: 3.0.3
+info:
+  title: Task Management API
+  description: API for managing tasks, users, and authentication.
+  version: 1.0.0
+servers:
+  - url: https://api.taskmanagement.com/v1
+    description: Production server
+  - url: http://localhost:3000/v1
+    description: Local development server
+
+paths:
+  /auth/register:
+    post:
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: johndoe
+                email:
+                  type: string
+                  format: email
+                  example: johndoe@example.com
+                password:
+                  type: string
+                  format: password
+                  example: Password123
+      responses:
+        '201':
+          description: User registered successfully
+        '400':
+          description: Invalid input or duplicate email/username
+
+  /auth/login:
+    post:
+      summary: Authenticate a user and return a token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: johndoe@example.com
+                password:
+                  type: string
+                  format: password
+                  example: Password123
+      responses:
+        '200':
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        '401':
+          description: Invalid credentials
+
+  /tasks:
+    get:
+      summary: Retrieve all tasks for the authenticated user
+      parameters:
+        - name: priority_id
+          in: query
+          schema:
+            type: integer
+          description: Filter by priority
+        - name: category_id
+          in: query
+          schema:
+            type: integer
+          description: Filter by category
+        - name: status
+          in: query
+          schema:
+            type: string
+          description: Filter by status (e.g., pending, completed)
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Search by task title or description
+      responses:
+        '200':
+          description: List of tasks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    task_id:
+                      type: integer
+                      example: 1
+                    title:
+                      type: string
+                      example: "Complete project report"
+                    description:
+                      type: string
+                      example: "Prepare the final report for the project"
+                    priority_id:
+                      type: integer
+                      example: 2
+                    category_id:
+                      type: integer
+                      example: 1
+                    due_date:
+                      type: string
+                      format: date
+                      example: "2025-07-10"
+                    status:
+                      type: string
+                      example: "pending"
+        '401':
+          description: Unauthorized access
+
+    post:
+      summary: Create a new task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: "Complete project report"
+                description:
+                  type: string
+                  example: "Prepare the final report for the project"
+                priority_id:
+                  type: integer
+                  example: 2
+                category_id:
+                  type: integer
+                  example: 1
+                due_date:
+                  type: string
+                  format: date
+                  example: "2025-07-10"
+      responses:
+        '201':
+          description: Task created successfully
+        '400':
+          description: Invalid input
+
+  /tasks/{task_id}:
+    get:
+      summary: Retrieve a specific task by its ID
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Task details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  task_id:
+                    type: integer
+                    example: 1
+                  title:
+                    type: string
+                    example: "Complete project report"
+                  description:
+                    type: string
+                    example: "Prepare the final report for the project"
+                  priority_id:
+                    type: integer
+                    example: 2
+                  category_id:
+                    type: integer
+                    example: 1
+                  due_date:
+                    type: string
+                    format: date
+                    example: "2025-07-10"
+                  status:
+                    type: string
+                    example: "pending"
+        '404':
+          description: Task not found
+
+    put:
+      summary: Update an existing task
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: "Complete project report"
+                description:
+                  type: string
+                  example: "Prepare the final report for the project"
+                priority_id:
+                  type: integer
+                  example: 2
+                category_id:
+                  type: integer
+                  example: 1
+                due_date:
+                  type: string
+                  format: date
+                  example: "2025-07-10"
+                status:
+                  type: string
+                  example: "completed"
+      responses:
+        '200':
+          description: Task updated successfully
+        '400':
+          description: Invalid input
+        '404':
+          description: Task not found
+
+    delete:
+      summary: Delete a specific task
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Task deleted successfully
+        '404':
+          description: Task not found
+
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Invalid input"
