@@ -27,7 +27,7 @@ app.use(helmet()); // Basic security headers
 // Apply custom security headers
 app.use(securityHeaders);
 // Apply global rate limiting
-app.use(apiRateLimiter);
+// app.use(apiRateLimiter);
 app.use(morgan(config.SERVER.NODE_ENV === 'development' ? 'dev' : 'combined'));
 app.use(compression());
 app.use(express.json());
